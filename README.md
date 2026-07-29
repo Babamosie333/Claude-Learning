@@ -5,7 +5,8 @@ This project deploys as **one single Vercel project** — static frontend pages
 plus the `/api` serverless functions together, no separate backend hosting needed.
 
 ## Preview:
-<a href=img src="/assets/splash.jpg" >Claude Learning</a>
+<img src="/assets/splash.jpg" alt="Claude Learning">
+
 
 ## Whatsapp Channel Links:
 <a href="https://whatsapp.com/channel/0029Vb8shLnGU3BLZe88jH2s"> Claude-Learning</a>
