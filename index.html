@@ -371,7 +371,7 @@
 
     async function initAuth() {
       const clerkPublishableKey = document.querySelector('script[data-clerk-publishable-key]')?.getAttribute('data-clerk-publishable-key');
-      if (!clerkPublishableKey || clerkPublishableKey === 'pk_test_ZXRlcm5hbC1nYXRvci01Ny5jbGVyay5hY2NvdW50cy5kZXYk') {
+      if (!clerkPublishableKey || clerkPublishableKey === 'YOUR_CLERK_PUBLISHABLE_KEY') {
         document.getElementById('auth-nav-slot').innerHTML = '<span style="font-size:12px;color:#6b7690;">Set your Clerk key to enable login</span>';
         return;
       }
