@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic Web Development Test — Claude Learning</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Dancing+Script:wght@600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #05070c; font-family: 'Poppins', sans-serif; color: #e6e9f2; min-height: 100vh; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 6%; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .brand-wrap { display: flex; flex-direction: column; gap: 1px; }
+  .parent-brand { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: #f3f5fa; font-weight: 600; }
+  .brand-name { font-size: 18px; font-weight: 700; color: #f3f5fa; }
+  .brand-name .accent { background: linear-gradient(90deg, #4facfe, #8b7bff 60%, #c86bff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  .wrap { max-width: 720px; margin: 0 auto; padding: 50px 6% 90px; }
+
+  /* Name entry */
+  #nameStep { text-align: center; padding-top: 40px; }
+  #nameStep h1 { font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+  #nameStep p { color: #9aa4bb; font-size: 14px; margin-bottom: 28px; }
+  #nameInput {
+    width: 100%; max-width: 360px; padding: 13px 16px; border-radius: 10px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.14);
+    color: #e6e9f2; font-size: 15px; font-family: inherit; margin-bottom: 8px;
+  }
+  #nameInput:focus { outline: none; border-color: #4facfe; }
+  #nameError { color: #ff7a7a; font-size: 12px; height: 18px; margin-bottom: 14px; }
+  .btn { padding: 13px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; }
+  .btn-primary { background: linear-gradient(90deg, #4facfe, #8b7bff); color: #06090f; }
+
+  /* Progress */
+  .progress-row { display: flex; align-items: center; gap: 14px; margin-bottom: 30px; }
+  .progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #4facfe, #8b7bff); border-radius: 6px; transition: width 0.3s ease; }
+  .progress-text { font-size: 13px; color: #9aa4bb; white-space: nowrap; }
+  .topic-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 999px; margin-bottom: 18px; }
+  .topic-tag.html { background: rgba(255,122,89,0.1); color: #ff9a7c; }
+  .topic-tag.css { background: rgba(79,168,255,0.1); color: #7cbcff; }
+  .topic-tag.javascript { background: rgba(255,210,87,0.1); color: #ffdc7c; }
+
+  #quizStep { display: none; }
+  .qtext { font-size: 19px; font-weight: 600; margin-bottom: 24px; line-height: 1.5; }
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
+  .option {
+    text-align: left; padding: 14px 18px; border-radius: 10px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+    color: #e6e9f2; font-size: 14px; font-family: inherit; cursor: pointer;
+  }
+  .option:hover { border-color: rgba(255,255,255,0.25); }
+  .option.selected { border-color: #4facfe; background: rgba(79,172,254,0.08); }
+
+  .nav-btns { display: flex; justify-content: space-between; }
+  .btn-secondary { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.14); color: #e6e9f2; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+  <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_ZXRlcm5hbC1nYXRvci01Ny5jbGVyay5hY2NvdW50cy5kZXYk" src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" type="text/javascript"></script>
+</head>
+<body>
+
+  <nav>
+    <div class="brand-wrap">
+      <span class="parent-brand">Babamosie Learning</span>
+      <span class="brand-name">Claude <span class="accent">Learning</span></span>
+    </div>
+  </nav>
+
+  <div class="wrap">
+
+    <div id="nameStep">
+      <h1>Basic Web Development test</h1>
+      <p>Enter your name as you want it to appear on your certificate.</p>
+      <input type="text" id="nameInput" placeholder="Your full name" autocomplete="off">
+      <div id="nameError"></div>
+      <br>
+      <button class="btn btn-primary" onclick="startQuiz()">Start test &rarr;</button>
+    </div>
+
+    <div id="quizStep">
+      <div class="progress-row">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">1 / 75</div>
+      </div>
+      <div id="topicTag"></div>
+      <div class="qtext" id="qtext"></div>
+      <div class="options" id="options"></div>
+      <div class="nav-btns">
+        <button class="btn btn-secondary" id="prevBtn" onclick="prevQ()">Back</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="nextQ()" disabled>Next</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="questions.js"></script>
+  <script>
+    let candidateName = "";
+    let current = 0;
+    let answers = new Array(QUESTIONS.length).fill(null);
+
+    function startQuiz() {
+      const val = document.getElementById('nameInput').value.trim();
+      if (!val) {
+        document.getElementById('nameError').textContent = "Please enter your name to continue.";
+        return;
+      }
+      candidateName = val;
+      document.getElementById('nameStep').style.display = 'none';
+      document.getElementById('quizStep').style.display = 'block';
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const item = QUESTIONS[current];
+      document.getElementById('progressFill').style.width = ((current + 1) / QUESTIONS.length * 100) + '%';
+      document.getElementById('progressText').textContent = (current + 1) + ' / ' + QUESTIONS.length;
+
+      const topicClass = item.topic.toLowerCase();
+      document.getElementById('topicTag').innerHTML = '<span class="topic-tag ' + topicClass + '">' + item.topic + '</span>';
+      document.getElementById('qtext').textContent = item.q;
+
+      const optsHtml = item.options.map((opt, i) => {
+        const sel = answers[current] === i ? 'selected' : '';
+        return '<button class="option ' + sel + '" onclick="selectOption(' + i + ')">' + opt + '</button>';
+      }).join('');
+      document.getElementById('options').innerHTML = optsHtml;
+
+      document.getElementById('prevBtn').disabled = current === 0;
+      document.getElementById('nextBtn').disabled = answers[current] === null;
+      document.getElementById('nextBtn').textContent = current === QUESTIONS.length - 1 ? 'Finish' : 'Next';
+    }
+
+    function selectOption(i) {
+      answers[current] = i;
+      renderQuestion();
+    }
+
+    function nextQ() {
+      if (answers[current] === null) return;
+      if (current === QUESTIONS.length - 1) {
+        finishQuiz();
+        return;
+      }
+      current++;
+      renderQuestion();
+    }
+
+    function prevQ() {
+      if (current === 0) return;
+      current--;
+      renderQuestion();
+    }
+
+    async function finishQuiz() {
+      let correct = 0;
+      QUESTIONS.forEach((item, i) => { if (answers[i] === item.answer) correct++; });
+      const percent = Math.round((correct / QUESTIONS.length) * 100);
+      const passed = percent >= 60;
+
+      let result = {
+        name: candidateName,
+        correct: correct,
+        total: QUESTIONS.length,
+        percent: percent,
+        passed: passed,
+        date: new Date().toISOString(),
+        certId: 'CL-WD-' + Math.random().toString(36).substring(2, 8).toUpperCase()
+      };
+
+      // If a Clerk session is active, save the real result to the backend/MongoDB
+      // and use the server-generated certificate (with its real unique ID) instead.
+      try {
+        if (window.Clerk && window.Clerk.user) {
+          const token = await window.Clerk.session.getToken();
+          const API_BASE = window.BABA_AI_API_BASE || '';
+          const res = await fetch(API_BASE + '/api/certificates', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ correct, total: QUESTIONS.length, percent, passed })
+          });
+          const data = await res.json();
+          if (data.certificate) {
+            result.certId = data.certificate.certId;
+            result.name = data.certificate.name;
+          }
+        }
+      } catch (e) {
+        console.warn('Backend unavailable, falling back to local-only result:', e);
+      }
+
+      sessionStorage.setItem('lastResult', JSON.stringify(result));
+
+      if (passed) {
+        const store = JSON.parse(localStorage.getItem('certificates') || '{}');
+        store[result.certId] = result;
+        localStorage.setItem('certificates', JSON.stringify(store));
+      }
+
+      window.location.href = 'result.html';
+    }
+  </script>
+
+  <script src="baba-ai.js"></script>
+</body>
+</html>

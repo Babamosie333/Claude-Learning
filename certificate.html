@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Certificate Preview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Dancing+Script:wght@600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #05070c;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 16px;
+  }
+
+  .cert {
+    position: relative;
+    width: 900px;
+    max-width: 100%;
+    background: radial-gradient(circle at 20% 15%, rgba(56,140,255,0.12), transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(255,150,50,0.10), transparent 45%),
+                #0a0d14;
+    border-radius: 20px;
+    padding: 48px 56px 40px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 80px rgba(0,0,0,0.6);
+  }
+
+  .ring {
+    position: absolute;
+    inset: 14px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, rgba(80,160,255,0.35), rgba(255,150,50,0.25)) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .brand-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #f3f5fa;
+  }
+  .brand-name .accent {
+    background: linear-gradient(90deg, #4facfe, #8b7bff 60%, #c86bff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .brand-by {
+    font-family: 'Dancing Script', cursive;
+    font-size: 15px;
+    color: #ffb35c;
+    margin-top: 2px;
+  }
+
+  .seal {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #37e08a, #0f9d5b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 22px rgba(55,224,138,0.55);
+    flex-shrink: 0;
+  }
+  .seal svg { width: 26px; height: 26px; }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    margin: 8px 0 30px;
+  }
+
+  .eyebrow {
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #7d8aa3;
+    margin-bottom: 10px;
+  }
+
+  .title {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 800;
+    color: #f3f5fa;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #8892a6;
+    margin-bottom: 26px;
+  }
+
+  .name {
+    text-align: center;
+    font-family: 'Dancing Script', cursive;
+    font-size: 46px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #6fb8ff, #b48bff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 18px;
+    line-height: 1.2;
+  }
+
+  .desc {
+    text-align: center;
+    font-size: 15px;
+    color: #b7c0d1;
+    line-height: 1.8;
+    max-width: 560px;
+    margin: 0 auto 8px;
+  }
+  .desc b { color: #f3f5fa; font-weight: 600; }
+  .desc .html-c { color: #ff7a59; font-weight: 600; }
+  .desc .css-c { color: #4fa8ff; font-weight: 600; }
+  .desc .js-c { color: #ffd257; font-weight: 600; }
+
+  .scorewrap {
+    display: flex;
+    justify-content: center;
+    margin: 22px 0 30px;
+  }
+  .score {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    background: rgba(55,224,138,0.10);
+    border: 1px solid rgba(55,224,138,0.4);
+    padding: 10px 26px;
+    border-radius: 999px;
+  }
+  .score .big { font-size: 26px; font-weight: 700; color: #4de394; }
+  .score .small { font-size: 13px; color: #7fd9a8; }
+
+  .badges {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge.html { background: rgba(255,122,89,0.08); border: 1px solid rgba(255,122,89,0.3); color: #ff9a7c; }
+  .badge.css { background: rgba(79,168,255,0.08); border: 1px solid rgba(79,168,255,0.3); color: #7cbcff; }
+  .badge.js { background: rgba(255,210,87,0.08); border: 1px solid rgba(255,210,87,0.3); color: #ffdc7c; }
+  .badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .badge.html .dot { background: #ff7a59; }
+  .badge.css .dot { background: #4fa8ff; }
+  .badge.js .dot { background: #ffd257; }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 18px;
+  }
+  .footer-block { text-align: left; }
+  .footer-label { font-size: 11px; color: #6b7690; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .footer-value { font-size: 14px; color: #dfe4ee; font-weight: 600; }
+  .footer-value.mono { font-family: monospace; font-weight: 400; color: #9aa4bb; }
+  .footer-block.right { text-align: right; }
+
+  .qr-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .qr-box {
+    width: 54px;
+    height: 54px;
+    border-radius: 6px;
+    background: #fff;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .qr-box canvas { width: 100%; height: 100%; }
+  .qr-text { font-size: 10px; color: #6b7690; }
+</style>
+</head>
+<body>
+  <div class="cert">
+    <div class="ring"></div>
+
+    <div class="header">
+      <div class="brand">
+        <div class="brand-name">Claude <span class="accent">Learning</span></div>
+        <div class="brand-by">by Vikram Singh</div>
+      </div>
+      <div class="seal">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="eyebrow">Certificate of achievement</div>
+    <div class="title">Basic Web Development</div>
+    <div class="subtitle">This is to certify that</div>
+
+    <div class="name" id="certName">Candidate Name</div>
+
+    <div class="desc">
+      has successfully completed the <b>Basic Web Development</b> certification test,
+      covering <span class="html-c">HTML</span>, <span class="css-c">CSS</span> and <span class="js-c">JavaScript</span>,
+      with a score of
+    </div>
+
+    <div class="scorewrap">
+      <div class="score">
+        <span class="big" id="certScore">51 / 75</span>
+        <span class="small" id="certPercent">(68%) &mdash; passed</span>
+      </div>
+    </div>
+
+    <div class="badges">
+      <div class="badge html"><span class="dot"></span>HTML</div>
+      <div class="badge css"><span class="dot"></span>CSS</div>
+      <div class="badge js"><span class="dot"></span>JavaScript</div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-block">
+        <div class="footer-label">Date issued</div>
+        <div class="footer-value" id="certDate">28 July 2026</div>
+      </div>
+      <div class="footer-block">
+        <div class="footer-label">Certificate ID</div>
+        <div class="footer-value mono" id="certId">CL-WD-284719</div>
+      </div>
+      <div class="qr-hint">
+        <div class="qr-box"><canvas id="qr"></canvas></div>
+        <div class="qr-text">Verify</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top: 24px;">
+    <button id="downloadBtn" style="padding:13px 28px;border-radius:10px;font-size:14px;font-weight:600;border:none;cursor:pointer;background:linear-gradient(90deg,#4facfe,#8b7bff);color:#06090f;margin-right:8px;">Download PNG</button>
+    <a href="index.html" style="padding:13px 28px;border-radius:10px;font-size:14px;font-weight:600;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:#e6e9f2;text-decoration:none;">Back to home</a>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    const result = JSON.parse(sessionStorage.getItem('lastResult') || 'null');
+
+    if (result && result.passed) {
+      document.getElementById('certName').textContent = result.name;
+      document.getElementById('certScore').textContent = result.correct + ' / ' + result.total;
+      document.getElementById('certPercent').textContent = '(' + result.percent + '%) — passed';
+      document.getElementById('certId').textContent = result.certId;
+      document.getElementById('certDate').textContent = new Date(result.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    const certId = (result && result.certId) ? result.certId : 'CL-WD-284719';
+    new QRious({
+      element: document.getElementById('qr'),
+      value: window.location.origin + window.location.pathname.replace('certificate.html', 'verify.html') + '?id=' + certId,
+      size: 200,
+      background: '#ffffff',
+      foreground: '#0a0d14'
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const cert = document.querySelector('.cert');
+      html2canvas(cert, { backgroundColor: '#0a0d14', scale: 2 }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'certificate-' + certId + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    });
+  </script>
+  <script src="baba-ai.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your result — Claude Learning</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Dancing+Script:wght@600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #05070c; font-family: 'Poppins', sans-serif; color: #e6e9f2; min-height: 100vh; }
+
+  nav { display: flex; align-items: center; padding: 20px 6%; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .brand-wrap { display: flex; flex-direction: column; gap: 1px; }
+  .parent-brand { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: #f3f5fa; font-weight: 600; }
+  .brand-name { font-size: 18px; font-weight: 700; color: #f3f5fa; }
+  .brand-name .accent { background: linear-gradient(90deg, #4facfe, #8b7bff 60%, #c86bff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 70px 6% 90px; text-align: center; }
+
+  .ring {
+    width: 96px; height: 96px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 26px; font-size: 34px;
+  }
+  .ring.pass { background: radial-gradient(circle at 35% 30%, #37e08a, #0f9d5b); box-shadow: 0 0 26px rgba(55,224,138,0.5); }
+  .ring.fail { background: radial-gradient(circle at 35% 30%, #ff8a7a, #c8402c); box-shadow: 0 0 26px rgba(255,122,89,0.4); }
+
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+  p.sub { color: #9aa4bb; font-size: 14px; margin-bottom: 30px; }
+
+  .scorewrap { display: flex; justify-content: center; margin-bottom: 34px; }
+  .score { display: inline-flex; align-items: baseline; gap: 8px; padding: 12px 28px; border-radius: 999px; }
+  .score.pass { background: rgba(55,224,138,0.10); border: 1px solid rgba(55,224,138,0.4); }
+  .score.fail { background: rgba(255,122,89,0.08); border: 1px solid rgba(255,122,89,0.3); }
+  .score .big { font-size: 28px; font-weight: 700; }
+  .score.pass .big { color: #4de394; }
+  .score.fail .big { color: #ff9a7c; }
+  .score .small { font-size: 13px; }
+  .score.pass .small { color: #7fd9a8; }
+  .score.fail .small { color: #ffb39c; }
+
+  .btn { padding: 13px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; margin: 0 6px; text-decoration: none; display: inline-block; }
+  .btn-primary { background: linear-gradient(90deg, #4facfe, #8b7bff); color: #06090f; }
+  .btn-secondary { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.14); color: #e6e9f2; }
+</style>
+</head>
+<body>
+
+  <nav>
+    <div class="brand-wrap">
+      <span class="parent-brand">Babamosie Learning</span>
+      <span class="brand-name">Claude <span class="accent">Learning</span></span>
+    </div>
+  </nav>
+
+  <div class="wrap" id="content"></div>
+
+  <script>
+    const result = JSON.parse(sessionStorage.getItem('lastResult') || 'null');
+    const el = document.getElementById('content');
+
+    if (!result) {
+      el.innerHTML = '<h1>No result found</h1><p class="sub">Please take the test first.</p><a class="btn btn-primary" href="test.html">Take the test</a>';
+    } else if (result.passed) {
+      el.innerHTML =
+        '<div class="ring pass">&#10003;</div>' +
+        '<h1>Congratulations, ' + result.name + '!</h1>' +
+        '<p class="sub">You passed the Basic Web Development certification test.</p>' +
+        '<div class="scorewrap"><div class="score pass"><span class="big">' + result.correct + ' / ' + result.total + '</span><span class="small">(' + result.percent + '%) &mdash; passed</span></div></div>' +
+        '<a class="btn btn-primary" href="certificate.html">View certificate &rarr;</a>' +
+        '<a class="btn btn-secondary" href="index.html">Back to home</a>';
+    } else {
+      el.innerHTML =
+        '<div class="ring fail">&times;</div>' +
+        '<h1>Not quite, ' + result.name + '</h1>' +
+        '<p class="sub">You need at least 60% to pass. Review the basics and try again.</p>' +
+        '<div class="scorewrap"><div class="score fail"><span class="big">' + result.correct + ' / ' + result.total + '</span><span class="small">(' + result.percent + '%) &mdash; not passed</span></div></div>' +
+        '<a class="btn btn-primary" href="test.html">Retry test &rarr;</a>' +
+        '<a class="btn btn-secondary" href="index.html">Back to home</a>';
+    }
+  </script>
+
+  <script src="baba-ai.js"></script>
+</body>
+</html>

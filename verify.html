@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify certificate — Claude Learning</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Dancing+Script:wght@600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #05070c; font-family: 'Poppins', sans-serif; color: #e6e9f2; min-height: 100vh; }
+
+  nav { display: flex; align-items: center; padding: 20px 6%; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .brand-wrap { display: flex; flex-direction: column; gap: 1px; }
+  .parent-brand { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: #f3f5fa; font-weight: 600; }
+  .brand-name { font-size: 18px; font-weight: 700; color: #f3f5fa; }
+  .brand-name .accent { background: linear-gradient(90deg, #4facfe, #8b7bff 60%, #c86bff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  .wrap { max-width: 520px; margin: 0 auto; padding: 60px 6% 90px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; text-align: center; }
+  p.sub { color: #9aa4bb; font-size: 14px; margin-bottom: 26px; text-align: center; }
+
+  .searchrow { display: flex; gap: 10px; margin-bottom: 30px; }
+  #idInput {
+    flex: 1; padding: 13px 16px; border-radius: 10px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.14);
+    color: #e6e9f2; font-size: 14px; font-family: monospace;
+  }
+  #idInput:focus { outline: none; border-color: #4facfe; }
+  .btn { padding: 13px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; }
+  .btn-primary { background: linear-gradient(90deg, #4facfe, #8b7bff); color: #06090f; }
+
+  .result-card {
+    background: radial-gradient(circle at 20% 15%, rgba(56,140,255,0.08), transparent 40%), #0a0d14;
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 26px; text-align: center;
+  }
+  .result-card.invalid { border-color: rgba(255,122,89,0.3); }
+  .icon-ring { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 22px; }
+  .icon-ring.valid { background: radial-gradient(circle at 35% 30%, #37e08a, #0f9d5b); box-shadow: 0 0 20px rgba(55,224,138,0.4); }
+  .icon-ring.invalid { background: radial-gradient(circle at 35% 30%, #ff8a7a, #c8402c); }
+  .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; }
+  .row:last-child { border-bottom: none; }
+  .row .label { color: #8892a6; }
+  .row .value { font-weight: 600; }
+</style>
+</head>
+<body>
+
+  <nav>
+    <div class="brand-wrap">
+      <span class="parent-brand">Babamosie Learning</span>
+      <span class="brand-name">Claude <span class="accent">Learning</span></span>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <h1>Verify a certificate</h1>
+    <p class="sub">Enter a certificate ID, or scan the QR code on a certificate.</p>
+
+    <div class="searchrow">
+      <input type="text" id="idInput" placeholder="e.g. CL-WD-284719">
+      <button class="btn btn-primary" onclick="verify()">Verify</button>
+    </div>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function renderResult(record, id) {
+      const out = document.getElementById('output');
+      if (!record) {
+        out.innerHTML =
+          '<div class="result-card invalid">' +
+          '<div class="icon-ring invalid">&times;</div>' +
+          '<div class="row"><span class="value">No certificate found for ID ' + esc(id) + '</span></div>' +
+          '</div>';
+        return;
+      }
+      out.innerHTML =
+        '<div class="result-card">' +
+        '<div class="icon-ring valid">&#10003;</div>' +
+        '<div class="row"><span class="label">Status</span><span class="value" style="color:#4de394;">Valid certificate</span></div>' +
+        '<div class="row"><span class="label">Name</span><span class="value">' + esc(record.name) + '</span></div>' +
+        '<div class="row"><span class="label">Course</span><span class="value">Basic Web Development</span></div>' +
+        '<div class="row"><span class="label">Score</span><span class="value">' + record.correct + ' / ' + record.total + ' (' + record.percent + '%)</span></div>' +
+        '<div class="row"><span class="label">Date issued</span><span class="value">' + new Date(record.date).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }) + '</span></div>' +
+        '<div class="row"><span class="label">Certificate ID</span><span class="value" style="font-family:monospace;">' + esc(record.certId) + '</span></div>' +
+        '</div>';
+    }
+
+    async function verify() {
+      const id = document.getElementById('idInput').value.trim().toUpperCase();
+      if (!id) return;
+
+      try {
+        const res = await fetch('/api/certificates/verify/' + encodeURIComponent(id));
+        const data = await res.json();
+        if (data.valid && data.certificate) {
+          renderResult(data.certificate, id);
+          return;
+        }
+      } catch (e) {
+        console.warn('Backend verify unavailable, checking local demo data:', e);
+      }
+
+      // Fallback for the no-backend demo flow (localStorage-based certificates).
+      const store = JSON.parse(localStorage.getItem('certificates') || '{}');
+      renderResult(store[id] || null, id);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const qId = params.get('id');
+    if (qId) {
+      document.getElementById('idInput').value = qId;
+      verify();
+    }
+  </script>
+
+  <script src="baba-ai.js"></script>
+</body>
+</html>
