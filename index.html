@@ -296,6 +296,7 @@
   <section class="hero" id="guestHero">
     <div class="eyebrow"><span class="dot"></span>75 questions &middot; 60% to pass</div>
     <h1>Basic Web Development<br><span class="grad">certification test</span></h1>
+    <p id="welcomeBanner" style="display:none; font-size: 14px; color: #7fd9a8; background: rgba(55,224,138,0.08); border: 1px solid rgba(55,224,138,0.3); padding: 8px 18px; border-radius: 999px; margin-bottom: 18px;"></p>
     <p class="sub">Test your knowledge of HTML, CSS and JavaScript basics. Score 60% or higher and get an instant, shareable certificate.</p>
 
     <div class="cta-row">
@@ -308,19 +309,8 @@
       <div class="badge css"><span class="dot"></span>CSS &middot; 25 questions</div>
       <div class="badge js"><span class="dot"></span>JavaScript &middot; 25 questions</div>
     </div>
-  </section>
 
-  <section class="hero" id="userHero" style="display:none;">
-    <div class="eyebrow"><span class="dot"></span><span id="welcomeText">Welcome back</span></div>
-    <h1>Your <span class="grad">learning dashboard</span></h1>
-    <p class="sub" id="userEmailText"></p>
-
-    <div class="cta-row">
-      <a class="btn btn-primary" href="test.html">Take the test &rarr;</a>
-      <a class="btn btn-secondary" href="verify.html">Verify a certificate</a>
-    </div>
-
-    <div id="myCertsWrap" style="margin-top: 40px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+    <div id="myCertsWrap" style="display:none; margin-top: 50px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
       <p style="font-size: 13px; color: #6b7690; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Your certificates</p>
       <div id="myCertsList" style="color: #9aa4bb; font-size: 14px;">Loading...</div>
     </div>
@@ -381,49 +371,49 @@
       const slot = document.getElementById('auth-nav-slot');
 
       function renderSignedOut() {
-        slot.innerHTML = '';
-        window.Clerk.mountSignInButton(slot, { appearance: { elements: {} } });
-        document.getElementById('guestHero').style.display = 'block';
-        document.getElementById('userHero').style.display = 'none';
-      }
+  slot.innerHTML = '';
+  window.Clerk.mountSignInButton(slot, { appearance: { elements: {} } });
+  document.getElementById('welcomeBanner').style.display = 'none';
+  document.getElementById('myCertsWrap').style.display = 'none';
+}
 
-      async function renderSignedIn(user) {
-        slot.innerHTML = '';
-        window.Clerk.mountUserButton(slot);
-        document.getElementById('guestHero').style.display = 'none';
-        document.getElementById('userHero').style.display = 'block';
-        document.getElementById('welcomeText').textContent = 'Welcome back, ' + (user.firstName || 'there');
-        document.getElementById('userEmailText').textContent = user.primaryEmailAddress?.emailAddress || '';
+async function renderSignedIn(user) {
+  slot.innerHTML = '';
+  window.Clerk.mountUserButton(slot);
 
-        const token = await window.Clerk.session.getToken();
+  const email = user.primaryEmailAddress?.emailAddress || '';
+  const banner = document.getElementById('welcomeBanner');
+  banner.textContent = 'Welcome back' + (user.firstName ? ', ' + user.firstName : '') + (email ? ' — signed in as ' + email : '');
+  banner.style.display = 'inline-block';
+  document.getElementById('myCertsWrap').style.display = 'block';
 
-        // Sync user into MongoDB (creates the record on first login, keyed by email).
-        await fetch(API_BASE + '/api/auth/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ email: user.primaryEmailAddress?.emailAddress, name: user.fullName })
-        }).catch(() => {});
+  const token = await window.Clerk.session.getToken();
 
-        // Load this user's own certificate history.
-        try {
-          const res = await fetch(API_BASE + '/api/certificates/mine', {
-            headers: { 'Authorization': 'Bearer ' + token }
-          });
-          const data = await res.json();
-          const listEl = document.getElementById('myCertsList');
-          if (!data.certificates || data.certificates.length === 0) {
-            listEl.textContent = "You haven't earned a certificate yet.";
-          } else {
-            listEl.innerHTML = data.certificates.map(c =>
-              '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">' +
-              c.correct + '/' + c.total + ' (' + c.percent + '%) — ' + new Date(c.date).toLocaleDateString() +
-              ' — <span style="font-family:monospace;">' + c.certId + '</span></div>'
-            ).join('');
-          }
-        } catch (e) {
-          document.getElementById('myCertsList').textContent = 'Could not reach the backend to load certificates.';
-        }
-      }
+  await fetch(API_BASE + '/api/auth/sync', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify({ email, name: user.fullName })
+  }).catch(() => {});
+
+  try {
+    const res = await fetch(API_BASE + '/api/certificates/mine', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    const listEl = document.getElementById('myCertsList');
+    if (!data.certificates || data.certificates.length === 0) {
+      listEl.textContent = "You haven't earned a certificate yet.";
+    } else {
+      listEl.innerHTML = data.certificates.map(c =>
+        '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">' +
+        c.correct + '/' + c.total + ' (' + c.percent + '%) — ' + new Date(c.date).toLocaleDateString() +
+        ' — <span style="font-family:monospace;">' + c.certId + '</span></div>'
+      ).join('');
+    }
+  } catch (e) {
+    document.getElementById('myCertsList').textContent = 'Could not reach the backend to load certificates.';
+  }
+}
 
       window.Clerk.addListener(({ user }) => {
         if (user) renderSignedIn(user); else renderSignedOut();
