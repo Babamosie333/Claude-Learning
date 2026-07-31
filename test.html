@@ -100,6 +100,18 @@
     let current = 0;
     let answers = new Array(QUESTIONS.length).fill(null);
 
+    // Load Clerk in the background (if a real key is set) so a signed-in
+    // user's result can be saved to the backend when they finish the test.
+    (async function initClerkSilently() {
+      const key = document.querySelector('script[data-clerk-publishable-key]')?.getAttribute('data-clerk-publishable-key');
+      if (!key || key === 'YOUR_CLERK_PUBLISHABLE_KEY') return;
+      await new Promise((resolve) => {
+        if (window.Clerk) return resolve();
+        const check = setInterval(() => { if (window.Clerk) { clearInterval(check); resolve(); } }, 50);
+      });
+      await window.Clerk.load();
+    })();
+
     function startQuiz() {
       const val = document.getElementById('nameInput').value.trim();
       if (!val) {

@@ -122,12 +122,17 @@
     font-family: 'Dancing Script', cursive;
     font-size: 46px;
     font-weight: 700;
-    background: linear-gradient(90deg, #6fb8ff, #b48bff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: #b48bff; /* fallback: always visible even if the gradient clip below doesn't apply */
     margin-bottom: 18px;
     line-height: 1.2;
+  }
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .name {
+      background: linear-gradient(90deg, #6fb8ff, #b48bff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
   }
 
   .desc {
@@ -273,17 +278,18 @@
   </div>
 
   <div style="text-align:center; margin-top: 24px;">
-    <button id="downloadBtn" style="padding:13px 28px;border-radius:10px;font-size:14px;font-weight:600;border:none;cursor:pointer;background:linear-gradient(90deg,#4facfe,#8b7bff);color:#06090f;margin-right:8px;">Download PNG</button>
+    <button id="downloadBtn" style="padding:13px 28px;border-radius:10px;font-size:14px;font-weight:600;border:none;cursor:pointer;background:linear-gradient(90deg,#4facfe,#8b7bff);color:#06090f;margin-right:8px;">Download PDF</button>
     <a href="index.html" style="padding:13px 28px;border-radius:10px;font-size:14px;font-weight:600;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:#e6e9f2;text-decoration:none;">Back to home</a>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     const result = JSON.parse(sessionStorage.getItem('lastResult') || 'null');
 
     if (result && result.passed) {
-      document.getElementById('certName').textContent = result.name;
+      document.getElementById('certName').textContent = result.name || 'Your Name';
       document.getElementById('certScore').textContent = result.correct + ' / ' + result.total;
       document.getElementById('certPercent').textContent = '(' + result.percent + '%) — passed';
       document.getElementById('certId').textContent = result.certId;
@@ -302,10 +308,23 @@
     document.getElementById('downloadBtn').addEventListener('click', () => {
       const cert = document.querySelector('.cert');
       html2canvas(cert, { backgroundColor: '#0a0d14', scale: 2 }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'certificate-' + certId + '.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+
+        // Match the PDF page size to the certificate's own aspect ratio
+        // instead of forcing it onto a fixed A4 page.
+        const pxToMm = 0.264583;
+        const widthMm = canvas.width * pxToMm / 2;   // divide by 2 to undo the scale:2 above
+        const heightMm = canvas.height * pxToMm / 2;
+
+        const pdf = new jsPDF({
+          orientation: widthMm > heightMm ? 'landscape' : 'portrait',
+          unit: 'mm',
+          format: [widthMm, heightMm]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, widthMm, heightMm);
+        pdf.save('certificate-' + certId + '.pdf');
       });
     });
   </script>
