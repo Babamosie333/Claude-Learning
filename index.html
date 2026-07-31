@@ -276,7 +276,10 @@
         </div>
       </div>
       <a href="https://vikramsingh.babamosie.workers.dev/port-folio" target="_blank" rel="noopener">Portfolio</a>
-      <div id="auth-nav-slot"></div>
+      <div id="auth-nav-slot">
+        <button id="loginBtn" class="btn btn-secondary" style="padding:8px 18px; font-size:13px; display:none;">Login / Sign up</button>
+        <div id="userBtnSlot"></div>
+      </div>
     </div>
     <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
       <span></span><span></span><span></span>
@@ -375,20 +378,34 @@
         }, 50);
       });
 
-      await window.Clerk.load();
+      try {
+        await window.Clerk.load();
+      } catch (err) {
+        console.error('Clerk failed to load:', err);
+        document.getElementById('auth-nav-slot').innerHTML =
+          '<span style="font-size:12px;color:#ff9a7c;" title="' + (err.message || err) + '">Clerk error — check console (F12)</span>';
+        return;
+      }
 
-      const slot = document.getElementById('auth-nav-slot');
+      const loginBtn = document.getElementById('loginBtn');
+      const userBtnSlot = document.getElementById('userBtnSlot');
+
+      // Explicit click-to-open sign-up modal, instead of relying on the
+      // auto-mounted widget (which silently fails if the domain isn't
+      // added under Clerk → your app → Domains).
+      loginBtn.addEventListener('click', () => window.Clerk.openSignUp());
 
       function renderSignedOut() {
-        slot.innerHTML = '';
-        window.Clerk.mountSignInButton(slot, { appearance: { elements: {} } });
+        loginBtn.style.display = 'inline-flex';
+        userBtnSlot.innerHTML = '';
         document.getElementById('welcomeBanner').style.display = 'none';
         document.getElementById('myCertsWrap').style.display = 'none';
       }
 
       async function renderSignedIn(user) {
-        slot.innerHTML = '';
-        window.Clerk.mountUserButton(slot);
+        loginBtn.style.display = 'none';
+        userBtnSlot.innerHTML = '';
+        window.Clerk.mountUserButton(userBtnSlot);
 
         const email = user.primaryEmailAddress?.emailAddress || '';
         const banner = document.getElementById('welcomeBanner');
@@ -431,6 +448,17 @@
       });
 
       if (window.Clerk.user) renderSignedIn(window.Clerk.user); else renderSignedOut();
+
+      // Gate "Start test": if not signed in, open the sign-up modal instead
+      // of navigating straight to the test.
+      document.querySelectorAll('a[href="test.html"]').forEach((link) => {
+        link.addEventListener('click', (e) => {
+          if (!window.Clerk.user) {
+            e.preventDefault();
+            window.Clerk.openSignUp({ redirectUrl: 'test.html' });
+          }
+        });
+      });
     }
 
     initAuth();
