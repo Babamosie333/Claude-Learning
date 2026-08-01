@@ -93,6 +93,9 @@
   .nav-links a { color: inherit; text-decoration: none; }
   .nav-links a:hover { color: #e6e9f2; }
 
+  .nav-right { display: flex; align-items: center; gap: 20px; }
+  #auth-nav-slot { display: flex; align-items: center; }
+
   .dropdown { position: relative; }
   .dropdown > span { cursor: pointer; }
   .dropdown > span:hover { color: #e6e9f2; }
@@ -239,6 +242,8 @@
     .cards { grid-template-columns: 1fr; }
     .nav-links { display: none; }
     .hamburger { display: flex; }
+    .nav-right { gap: 10px; }
+    #loginBtn { padding: 7px 12px !important; font-size: 12px !important; }
     #splash img { max-width: 220px; width: 60%; }
     .splash-bar { width: 140px; bottom: 18%; }
   }
@@ -247,7 +252,7 @@
     #splash img { max-width: 170px; width: 55%; }
   }
 </style>
-  <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_d2VsY29tZWQtbWFtbWFsLTI2LmNsZXJrLmFjY291bnRzLmRldiQ" src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" type="text/javascript"></script>
+  <script async crossorigin="anonymous" data-clerk-publishable-key="YOUR_CLERK_PUBLISHABLE_KEY" src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" type="text/javascript"></script>
 </head>
 <body>
 
@@ -264,26 +269,28 @@
         <span class="brand-by">by Vikram Singh</span>
       </div>
     </div>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="test.html">Take test</a>
-      <a href="verify.html">Verify certificate</a>
-      <div class="dropdown">
-        <span>WhatsApp channels &darr;</span>
-        <div class="dropdown-menu">
-          <a href="https://whatsapp.com/channel/0029Vb8shLnGU3BLZe88jH2s" target="_blank" rel="noopener"><span class="dot green"></span>Claude Learning</a>
-          <a href="#" target="_blank" rel="noopener"><span class="dot purple"></span>Psychology</a>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="test.html">Take test</a>
+        <a href="verify.html">Verify certificate</a>
+        <div class="dropdown">
+          <span>WhatsApp channels &darr;</span>
+          <div class="dropdown-menu">
+            <a href="https://whatsapp.com/channel/0029Vb8shLnGU3BLZe88jH2s" target="_blank" rel="noopener"><span class="dot green"></span>Claude Learning</a>
+            <a href="#" target="_blank" rel="noopener"><span class="dot purple"></span>Psychology</a>
+          </div>
         </div>
+        <a href="https://vikramsingh.babamosie.workers.dev/port-folio" target="_blank" rel="noopener">Portfolio</a>
       </div>
-      <a href="https://vikramsingh.babamosie.workers.dev/port-folio" target="_blank" rel="noopener">Portfolio</a>
       <div id="auth-nav-slot">
         <button id="loginBtn" class="btn btn-secondary" style="padding:8px 18px; font-size:13px; display:none;">Login / Sign up</button>
         <div id="userBtnSlot"></div>
       </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
-      <span></span><span></span><span></span>
-    </button>
   </nav>
 
   <div class="mobile-menu" id="mobileMenu">
